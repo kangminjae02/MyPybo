@@ -1,0 +1,6 @@
+.idea
+fastapi-tutorial.db
+*.pyc
+__pycache__
+migrations
+alembic.ini
