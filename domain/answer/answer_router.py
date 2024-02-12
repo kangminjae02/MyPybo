@@ -65,3 +65,15 @@ def answer_vote(_answer_vote: answer_schema.AnswerVote,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="데이터를 찾을 수 없습니다.")
     answer_crud.vote_answer(db=db, db_answer=db_answer, db_user=current_user)
+
+@router.get("/list/{question_id}", response_model=answer_schema.AnswerList)
+def answer_list(question_id: int, db: Session = Depends(get_db), page: int = 0, size: int = 5):
+    db_question = question_crud.get_question(db=db, question_id=question_id)
+    if not db_question:
+        raise HTTPException(status_code=status.HTTP_400_NOT_FOUND,
+                            detail="데이터를 찾을 수 없습니다.")
+    total, db_answer_list = answer_crud.get_answer_list(db=db, question_id=question_id, skip=page*size, limit=size)
+    return {
+        'total': total,
+        'answer_list': db_answer_list
+    }

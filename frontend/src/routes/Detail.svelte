@@ -5,21 +5,47 @@
     import { is_login, username } from "../lib/store"
     import { marked } from 'marked'
     import moment from 'moment/min/moment-with-locales'
+    import { writable } from "svelte/store";
     moment.locale('ko')
 
     export let params = {}
     let question_id = params.question_id
     let question = {answers:[], voter:[], content:''}
+    let answers = []
     let content = ""
     let error = {detail:[]}
+
+    let page = writable(0)
+    let size = 5
+    let total_answer = 0
+    $: total_page = Math.ceil(total_answer/size)
+
+    get_question()
+    get_answer_list()
+    $: $page, get_answer_list()
 
     function get_question(){
         fastapi("get", "/api/question/detail/"+question_id, {}, (json)=>{
             question = json
         })
     }
-    
-    get_question()
+
+    function get_answer_list(){
+        let url = "/api/answer/list/"+question_id
+        let params = {
+            page: $page,
+            size: size
+        }
+        fastapi("get", url, params,
+            (json) => {
+                total_answer = json.total
+                answers = json.answer_list
+            },
+            (err_json) => {
+                error = err_json
+            }
+        )
+    }
 
     function post_answer(event){
         event.preventDefault()
@@ -115,7 +141,7 @@
         <div class="card-body">
             <div class="card-text">
                 {@html marked.parse(question.content)}
-            </div>
+            </div>  
             <div class="d-flex justify-content-end">
                 {#if question.modify_date}
                 <div class="badge bg-light text-dark p-2 text-start mx-3">
@@ -146,7 +172,7 @@
     
     <!-- 답변 목록 -->
     <h5 class="border-bottom my-3 py-2">{question.answers.length}개의 답변이 있습니다.</h5>
-    {#each question.answers as answer}
+    {#each answers as answer}
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text">
@@ -177,8 +203,33 @@
             </div>
         </div>
     </div>
-
     {/each}
+    <ul class="pagination justify-content-center">
+        <!-- 처음 페이지 -->
+        <li class="page-item {$page <= 0 && 'disabled'}">
+          <button class="page-link" on:click="{() => $page = 0}">처음</button>
+        </li>
+        <!-- 이전 페이지 -->
+        <li class="page-item {$page <= 0 && 'disabled'}">
+          <button class="page-link" on:click="{() => $page--}">이전</button>
+        </li>
+        <!-- 페이지 번호 -->
+        {#each Array(total_page) as _, loop_page}
+            {#if loop_page >= $page-5 && loop_page <= $page+5}
+            <li class="page-item {loop_page === $page && 'active'}">
+            <button on:click="{() => $page = loop_page}" class="page-link">{loop_page+1}</button>
+            </li>
+            {/if}
+        {/each}
+        <!-- 다음 페이지 -->
+        <li class="page-item {$page >= total_page-1 && 'disabled'}">
+          <button class="page-link" on:click="{() => $page++}">다음</button>
+        </li>
+        <!-- 마지막 페이지-->
+        <li class="page-item {$page >= total_page-1 && 'disabled'}">
+          <button class="page-link" on:click="{() => $page = total_page-1}">마지막</button>
+        </li>
+    </ul>
     <!-- 답변 등록 -->
     <Error error={error}/>
     <form method="post" class="my-3">

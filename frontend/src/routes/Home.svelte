@@ -76,11 +76,11 @@
     </li>
     <!-- 페이지 번호 -->
     {#each Array(total_page) as _, loop_page}
-    {#if loop_page >= $page-5 && loop_page <= $page+5}
-    <li class="page-item {loop_page === $page && 'active'}">
-      <button on:click="{() => $page = loop_page}" class="page-link">{loop_page+1}</button>
-    </li>
-    {/if}
+      {#if loop_page >= $page-5 && loop_page <= $page+5}
+      <li class="page-item {loop_page === $page && 'active'}">
+        <button on:click="{() => $page = loop_page}" class="page-link">{loop_page+1}</button>
+      </li>
+      {/if}
     {/each}
     <!-- 다음 페이지 -->
     <li class="page-item {$page >= total_page-1 && 'disabled'}">
