@@ -49,4 +49,23 @@ class User(Base):
     username = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    
+
+reply_voter = Table(
+    'reply_voter',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('user.id'), primary_key=True),
+    Column('reply_id', Integer, ForeignKey('reply.id'), primary_key=True)
+)
+
+class Reply(Base):
+    __tablename__ = "reply"
+
+    id = Column(Integer, primary_key=True)
+    answer_id = Column(Integer, ForeignKey("answer.id"))
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
+    answer = relationship("Answer", backref="replies")
+    user = relationship("User", backref="reply_users")
+    content = Column(Text, nullable=False)
+    create_date = Column(DateTime, nullable=False)
+    modify_date = Column(DateTime, nullable=True)
+    voter = relationship("User", secondary=reply_voter, backref="reply_voters")

@@ -21,7 +21,7 @@ def get_question_list(db: Session, skip: int = 0, limit: int = 10, keyword: str 
                             sub_query.c.username.ilike(search)
                             )
     total = question_list.distinct().count()
-    question_list = question_list.order_by(Question.create_date.desc()).offset(skip).limit(limit).distinct().all()
+    question_list = question_list.order_by(Question.id.desc()).offset(skip).limit(limit).distinct().all()
 
     return total, question_list
 
