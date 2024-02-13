@@ -20,6 +20,13 @@
     let total_answer = 0
     $: total_page = Math.ceil(total_answer/size)
 
+    let reply_total = 0
+    let reply_page = 0
+    let reply_size = 5
+
+    let focused = null
+    let reply_content = ''
+
     get_question()
     get_answer_list()
     $: $page, get_answer_list()
@@ -124,7 +131,7 @@
             }
             fastapi('post', url, params,
                 (json) => {
-                    get_question()
+                    get_answer_list()
                 },
                 (err_json) => {
                     error = err_json
@@ -132,6 +139,72 @@
             )
         }
     }
+
+    function get_reply_list(){
+        let url = "/api/reply/list" + question_id
+        let params = {
+            page: reply_page,
+            size: reply_size
+        }
+        fastapi("get", url, params,
+            (json) => {
+                replies = json
+            },
+            (err) => {
+                error = err
+            }
+        )
+    }
+
+    function post_reply(event, answer_id){
+        event.preventDefault()
+        let url="/api/reply/create/"+answer_id
+        let params = {
+            content: reply_content
+        }
+        fastapi("post", url, params,
+            (json) => {
+                get_answer_list()
+                reply_content = ''
+                focused = null
+            },
+            (err) => {error=err}
+        )
+    }
+
+    function vote_reply(reply_id){
+        if(window.confirm("정말로 추천하시겠습니까?")){
+            let url = "/api/reply/vote"
+            let params = {
+                reply_id: reply_id
+            }
+            const success = (json) => {get_answer_list()}
+            const failure = (err) => {error = err}
+            fastapi("post", url, params, success, failure)
+        }
+    }
+
+    function update_reply(){
+        let url = "/api/reply/update"
+    }
+
+    function delete_reply(reply_id){
+        if(window.confirm('정말로 삭제하시겠습니까?')){
+            let url = "/api/reply/delete"
+            let params = {
+                reply_id: reply_id
+            }
+            fastapi('delete', url, params,
+                (json) => {
+                    push('/')
+                },
+                (json_error) => {
+                    error = json_error
+                }
+            )
+        }
+    }
+
 </script>
 
 <div class="container my-3">
@@ -186,8 +259,8 @@
                 </div>
                 {/if}
                 <div class="badge bg-light text-dark p-2 text-start">
-                    <div class="mb-2">{question.user ? question.user.username : ""}</div>
-                    <div>{moment(question.create_date).format("YYYY년 MM월 DD일 hh:mm a")}</div>
+                    <div class="mb-2">{answer.user ? answer.user.username : ""}</div>
+                    <div>{moment(answer.create_date).format("YYYY년 MM월 DD일 hh:mm a")}</div>
                 </div>
             </div>
             <!-- 추천, 수정, 삭제 -->
@@ -200,8 +273,54 @@
                 class="btn btn-sm btn-outline-secondary">수정</a>
                 <button class="btn btn-sm btn-outline-secondary" on:click={() => delete_answer(answer.id)}>삭제</button>
                 {/if}
+                <button class="btn btn-sm btn-outline-secondary {$is_login ? '' : 'disabled'}" on:click={() => {
+                    reply_content = ''
+                    focused = answer.id != focused ? answer.id : null
+                }}>답글</button>
+                <!-- 답글 -->
+                {#if focused === answer.id}
+                <form method="post" class="my-3">
+                    <div class="mb-3">
+                        <textarea rows="1" bind:value={reply_content} 
+                        disabled={$is_login ? "" : "disabled"}
+                        class="form-control"/>
+                    </div>
+                    <input type="submit" value="답변등록" class="btn btn-primary {$is_login ? '' : 'disabled'}" on:click="{(event) => post_reply(event, answer.id)}">        
+                </form>
+                {/if}
             </div>
         </div>
+        <!-- 답글 목록 -->
+        {#each answer.replies as reply}
+        <div class="card-body mx-4">
+            <div class="card-text">
+                {@html marked.parse(reply.content)}
+            </div>
+            <div class="d-flex justify-content-end">
+                {#if reply.modify_date}
+                <div class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div>{moment(reply.modify_date).format("YYYY년 MM월 DD일 hh:mm a")}</div>
+                </div>
+                {/if}
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">{reply.user ? reply.user.username : ""}</div>
+                    <div>{moment(reply.create_date).format("YYYY년 MM월 DD일 hh:mm a")}</div>
+                </div>
+            </div>
+            <!-- 추천, 수정, 삭제 -->
+            <div class="my-3">
+                <button class="btn btn-sm btn-outline-secondary" on:click={()=>vote_reply(reply.id)}>
+                    추천<span class="badge rounded-pill bg-success">{reply.voter.length}</span>
+                </button>
+                {#if reply.user && $username === reply.user.username}
+                <a use:link href="/reply-modify/{reply.id}"
+                class="btn btn-sm btn-outline-secondary">수정</a>
+                <button class="btn btn-sm btn-outline-secondary" on:click={()=>delete_reply(reply.id)}>삭제</button>
+                {/if}
+            </div>
+        </div>
+        {/each}
     </div>
     {/each}
     <ul class="pagination justify-content-center">

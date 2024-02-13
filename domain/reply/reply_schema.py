@@ -2,23 +2,21 @@ import datetime
 
 from pydantic import BaseModel, field_validator
 from domain.user.user_schema import User
-from domain.reply.reply_schema import Reply
 
-class Answer(BaseModel):
+class Reply(BaseModel):
     id: int
-    question_id: int
+    answer_id: int
     content: str
     user: User | None
     create_date: datetime.datetime
     modify_date: datetime.datetime | None = None
     voter: list[User] = []
-    replies: list[Reply] = []
 
-class AnswerList(BaseModel):
+class ReplyList(BaseModel):
     total: int
-    answer_list: list[Answer]
-
-class AnswerCreate(BaseModel):
+    reply_list: list[Reply]
+    
+class ReplyCreate(BaseModel):
     content: str
 
     @field_validator('content')
@@ -27,11 +25,11 @@ class AnswerCreate(BaseModel):
             raise ValueError('빈 값은 허용되지 않습니다.')
         return v
 
-class AnswerUpdate(AnswerCreate):
-    answer_id: int
+class ReplyUpdate(ReplyCreate):
+    reply_id: int
 
-class AnswerDelete(BaseModel):
-    answer_id: int
+class ReplyDelete(BaseModel):
+    reply_id: int
 
-class AnswerVote(BaseModel):
-    answer_id: int
+class ReplyVote(BaseModel):
+    reply_id: int
