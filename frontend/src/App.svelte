@@ -8,11 +8,12 @@
   import UserLogin from './routes/UserLogin.svelte'
   import QuestionModify from './routes/QuestionModify.svelte'
   import AnswerModify from './routes/AnswerModify.svelte'
-    import ReplyModify from './routes/ReplyModify.svelte';
+  import ReplyModify from './routes/ReplyModify.svelte'
+  import _Detail from './routes/_Detail.svelte'
 
   const routes = {
     '/': Home,
-    '/detail/:question_id' : Detail,
+    '/detail/:question_id' : _Detail,
     '/question-create': QuestionCreate,
     '/user-create': UserCreate,
     '/user-login': UserLogin,

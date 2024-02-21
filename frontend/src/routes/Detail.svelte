@@ -38,6 +38,7 @@
     }
 
     function get_answer_list(){
+        console.log($page)
         let url = "/api/answer/list/"+question_id
         let params = {
             page: $page,
