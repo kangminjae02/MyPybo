@@ -3,6 +3,7 @@
     import { link } from 'svelte-spa-router'
     import { page, is_login, keyword } from '../lib/store' 
     import moment from 'moment/min/moment-with-locales'
+    import Pager from "../components/Pager.svelte";
     moment.locale('ko')
 
     let question_list = []
@@ -10,7 +11,7 @@
     let total = 0
     let kw = ''
     $: total_page = Math.ceil(total/size)
-
+    $: $page, $keyword, get_question_list()
     function get_question_list(){
       let params = {
         page: $page,
@@ -23,7 +24,6 @@
         kw = $keyword
       })
     }
-    $: $page, $keyword, get_question_list()
 </script>
 
 <div class="container my-3">
@@ -65,31 +65,14 @@
       {/each}
     </tbody>
   </table>
-  <ul class="pagination justify-content-center">
-    <!-- 처음 페이지 -->
-    <li class="page-item {$page <= 0 && 'disabled'}">
-      <button class="page-link" on:click="{() => $page = 0}">처음</button>
-    </li>
-    <!-- 이전 페이지 -->
-    <li class="page-item {$page <= 0 && 'disabled'}">
-      <button class="page-link" on:click="{() => $page--}">이전</button>
-    </li>
-    <!-- 페이지 번호 -->
-    {#each Array(total_page) as _, loop_page}
-      {#if loop_page >= $page-5 && loop_page <= $page+5}
-      <li class="page-item {loop_page === $page && 'active'}">
-        <button on:click="{() => $page = loop_page}" class="page-link">{loop_page+1}</button>
-      </li>
-      {/if}
-    {/each}
-    <!-- 다음 페이지 -->
-    <li class="page-item {$page >= total_page-1 && 'disabled'}">
-      <button class="page-link" on:click="{() => $page++}">다음</button>
-    </li>
-    <!-- 마지막 페이지-->
-    <li class="page-item {$page >= total_page-1 && 'disabled'}">
-      <button class="page-link" on:click="{() => $page = total_page-1}">마지막</button>
-    </li>
-  </ul>
+  <Pager
+    page={$page}
+    total_page={total_page}
+    on_changed={
+      (_page) => {
+        $page = _page
+      }
+    }
+  />
 </div>
   
