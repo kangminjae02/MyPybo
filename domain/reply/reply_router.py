@@ -35,7 +35,7 @@ def get_reply(reply_id: int, db: Session = Depends(get_db)):
 @router.get("/list/{answer_id}", response_model=reply_schema.ReplyList)
 def get_reply_list(answer_id: int,
                    db: Session = Depends(get_db),
-                   page: int = 0, size: int = 5):
+                   page: int = 0, size: int = 20):
     total, reply_list = reply_crud.get_reply_list(
         db=db,
         answer_id=answer_id,
