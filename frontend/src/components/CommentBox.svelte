@@ -1,5 +1,4 @@
 <script>
-    export let is_login=false
     export let rows=1;
     export let on_submitted = () => {};
     let content = "";
@@ -12,7 +11,7 @@
     <input
         type="submit"
         value="답변등록"
-        class="btn btn-primary {is_login ? '' : 'disabled'}"
+        class="btn btn-primary"
         on:click={(event) => {
             event.preventDefault();
             on_submitted(content);

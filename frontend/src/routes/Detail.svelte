@@ -252,9 +252,10 @@
         }}
     />
 
+    {#if $is_login}
     <CommentBox 
         rows={5}
-        is_login={$is_login}
         on_submitted={(content) => post_answer(content)}
     />
+    {/if}
 </div>

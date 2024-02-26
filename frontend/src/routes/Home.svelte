@@ -10,13 +10,18 @@
     let size = 10
     let total = 0
     let kw = ''
+    let category = '자유'
+
     $: total_page = Math.ceil(total/size)
-    $: $page, $keyword, get_question_list()
+    $: $page, $keyword, category, get_question_list()
+
     function get_question_list(){
+      console.log(category)
       let params = {
         page: $page,
         size: size,
         keyword: $keyword,
+        category: category
       }
       fastapi('get', '/api/question/list', params, (json) => {
         question_list = json.question_list
@@ -39,6 +44,16 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="btn-group my-1" role="group" aria-label="Basic radio toggle button group">
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" on:click={() => category='질문'}>
+    <label class="btn btn-outline-primary" for="btnradio1">질문 게시판</label>
+  
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" on:click={() => category='강좌'}>
+    <label class="btn btn-outline-primary" for="btnradio2">강좌 게시판</label>
+  
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" on:click={() => category='자유'} checked>
+    <label class="btn btn-outline-primary" for="btnradio3">자유 게시판</label>
   </div>
   <table class="table">
     <thead>

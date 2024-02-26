@@ -7,6 +7,7 @@ from domain.user.user_schema import User
 
 class Question(BaseModel):
     id: int
+    category: str | None
     subject: str
     content: str
     user: User | None
