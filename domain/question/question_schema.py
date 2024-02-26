@@ -15,6 +15,7 @@ class Question(BaseModel):
     modify_date: datetime.datetime | None = None
     answers: list[Answer] = []
     voter: list[User] = []
+    views: int
 
 class QuestionList(BaseModel):
     total: int = 0
@@ -37,4 +38,7 @@ class QuestionDelete(BaseModel):
     question_id: int
 
 class QuestionVote(BaseModel):
+    question_id: int
+
+class QuestionIncreaseViews(BaseModel):
     question_id: int

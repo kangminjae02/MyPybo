@@ -16,7 +16,6 @@
     $: $page, $keyword, category, get_question_list()
 
     function get_question_list(){
-      console.log(category)
       let params = {
         page: $page,
         size: size,
@@ -28,6 +27,10 @@
         total = json.total
         kw = $keyword
       })
+    }
+
+    function increase_views(question_id){
+        fastapi("post", "/api/question/increase", {question_id:question_id}, () => {}, (err) => {error=err})
     }
 </script>
 
@@ -62,6 +65,7 @@
         <th style="width:50%">제목</th>
         <th>글쓴이</th>
         <th>작성일시</th>
+        <th>조회수</th>
       </tr>
     </thead>
     <tbody>
@@ -69,13 +73,14 @@
       <tr class="text-center">
         <td>{ total - ($page*size) - i}</td>
         <td class="text-start">
-          <a use:link href="/detail/{question.id}">{question.subject}</a>
+          <a use:link href="/detail/{question.id}" on:click={() => increase_views(question.id)}>{question.subject}</a>
           {#if question.answers.length > 0}
           <span class="text-danger small mx-2">{question.answers.length}</span>
           {/if}
         </td>
         <td>{question.user ? question.user.username : ""}</td>
         <td>{moment(question.create_date).format("YYYY년 MM월 DD일 hh:mm a")}</td>
+        <td>{question.views}</td>
       </tr>
       {/each}
     </tbody>

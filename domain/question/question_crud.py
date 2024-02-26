@@ -58,3 +58,8 @@ def delete_question(db: Session, db_question: Question):
 def vote_question(db: Session, db_question: Question, db_user: User):
     db_question.voter.append(db_user)
     db.commit()
+
+def increase_views(db: Session, db_question: Question):
+    db_question.views += 1
+    db.add(db_question)
+    db.commit()
