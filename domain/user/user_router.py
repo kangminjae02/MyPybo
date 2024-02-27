@@ -11,6 +11,8 @@ from database import get_db
 from domain.user import user_crud, user_schema
 from domain.user.user_crud import pwd_context
 
+ANONYMOUS_USERNAME = 'UNKNOWN'
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 60*24
 SECRET_KEY = '6dce4552ca57d1d74e796cfd5dbc7f126b6ddb3a202781c922035edef9bf19c2'
 ALGORITHM = "HS256"
@@ -31,8 +33,8 @@ def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_
 @router.post("/login", response_model=user_schema.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                            db: Session = Depends(get_db)):
-    
     # check user and password
+    print('excuted', form_data.username, form_data.password)
     user = user_crud.get_user(db, form_data.username)
     if not user or not pwd_context.verify(form_data.password, user.password):
         raise HTTPException(
@@ -54,7 +56,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
         "username": user.username
     }
 
-def get_current_user(token: str = Depends(oauth2_scheme),
+def get_current_user(token: str = None,
                      db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

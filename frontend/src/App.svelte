@@ -1,4 +1,6 @@
 <script>
+  import { access_token, is_login, username, UNKNOWN_USERNAME, UNKNOWN_PASSWORD } from './lib/store' 
+  import fastapi from './lib/api'
   import Router from 'svelte-spa-router'
   import Home from "./routes/Home.svelte"
   import Detail from "./routes/Detail.svelte"

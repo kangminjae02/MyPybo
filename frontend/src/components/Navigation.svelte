@@ -1,5 +1,5 @@
 <script>
-    import { link } from 'svelte-spa-router'
+    import { link, push } from 'svelte-spa-router'
     import { page, keyword, access_token, username, is_login } from '../lib/store'
 </script>
 
@@ -25,6 +25,7 @@
                             $access_token = ''
                             $username = ''
                             $is_login = false
+                            push('/')
                         }}>로그아웃 ({$username})</a>
                     </li>
                 {:else}

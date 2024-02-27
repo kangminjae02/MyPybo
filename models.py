@@ -14,6 +14,7 @@ class Question(Base):
     __tablename__ = "question"
 
     id = Column(Integer, primary_key=True)
+    category = Column(String, nullable=True)
     subject = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     create_date = Column(DateTime, nullable=False)
@@ -21,6 +22,7 @@ class Question(Base):
     user = relationship("User", backref="question_users")
     modify_date = Column(DateTime, nullable=True)
     voter = relationship('User', secondary=question_voter, backref='question_voters')
+    views = Column(Integer, nullable=False, server_default='0')
 
 answer_voter = Table(
     'answer_voter',
