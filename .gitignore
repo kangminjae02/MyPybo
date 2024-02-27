@@ -4,3 +4,4 @@ fastapi-tutorial.db
 __pycache__
 migrations
 alembic.ini
+db_control.py
