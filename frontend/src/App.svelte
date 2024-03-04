@@ -1,6 +1,4 @@
 <script>
-  import { access_token, is_login, username, UNKNOWN_USERNAME, UNKNOWN_PASSWORD } from './lib/store' 
-  import fastapi from './lib/api'
   import Router from 'svelte-spa-router'
   import Home from "./routes/Home.svelte"
   import Detail from "./routes/Detail.svelte"
@@ -11,6 +9,8 @@
   import QuestionModify from './routes/QuestionModify.svelte'
   import AnswerModify from './routes/AnswerModify.svelte'
   import ReplyModify from './routes/ReplyModify.svelte'
+  import ResetPassword from './routes/ResetPassword.svelte'
+  import EnterEmail from './routes/EnterEmail.svelte';
 
   const routes = {
     '/': Home,
@@ -21,6 +21,8 @@
     '/question-modify/:question_id': QuestionModify,
     '/answer-modify/:answer_id': AnswerModify,
     '/reply-modify/:reply_id': ReplyModify,
+    '/reset-password/:token': ResetPassword,
+    '/enter-email': EnterEmail,
   }
 </script>
 

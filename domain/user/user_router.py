@@ -11,11 +11,10 @@ from database import get_db
 from domain.user import user_crud, user_schema
 from domain.user.user_crud import pwd_context
 
-ANONYMOUS_USERNAME = 'UNKNOWN'
+from env import Settings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 60*24
-SECRET_KEY = '6dce4552ca57d1d74e796cfd5dbc7f126b6ddb3a202781c922035edef9bf19c2'
-ALGORITHM = "HS256"
+settings = Settings()
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login", auto_error=False)
 
 router = APIRouter(
@@ -29,6 +28,27 @@ def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="이미 존재하는 사용자입니다.")
     user_crud.create_user(db=db, user_create=_user_create)
+
+@router.put("/update/password", status_code=status.HTTP_204_NO_CONTENT)
+def user_password_update(token: str,
+                         _user_update: user_schema.UserUpdatePassword, 
+                         db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY_FOR_EMAIL, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            print("No email")
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    else:
+        db_user = user_crud.get_user_by_email(db, email)
+        user_crud.update_user_password(db=db, db_user=db_user, user_update=_user_update)
 
 @router.post("/login", response_model=user_schema.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
@@ -45,9 +65,9 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
     # make access token
     data = {
         "sub": user.username,
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        "exp": datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES_FOR_LOGIN)
     }
-    access_token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    access_token = jwt.encode(data, settings.SECRET_KEY_FOR_LOGIN, algorithm=settings.ALGORITHM)
 
     return{
         "access_token": access_token,
@@ -67,7 +87,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         if not token:
             print('Not autherized')
             raise credentials_exception
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY_FOR_LOGIN, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

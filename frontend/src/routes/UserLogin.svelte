@@ -1,5 +1,5 @@
 <script>
-    import { push } from 'svelte-spa-router'
+    import { push, link } from 'svelte-spa-router'
     import fastapi from "../lib/api"
     import Error from "../components/Error.svelte"
     import { access_token, username, is_login } from '../lib/store'
@@ -43,4 +43,5 @@
         </div>
         <button type="submit" class="btn btn-primary" on:click="{login}">로그인</button>
     </form>
+    <a use:link href="/enter-email">비밀번호 찾기</a>
 </div>
