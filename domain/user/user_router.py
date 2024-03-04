@@ -29,7 +29,7 @@ def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_
                             detail="이미 존재하는 사용자입니다.")
     user_crud.create_user(db=db, user_create=_user_create)
 
-@router.put("/update/password", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/update/password/{token}", status_code=status.HTTP_204_NO_CONTENT)
 def user_password_update(token: str,
                          _user_update: user_schema.UserUpdatePassword, 
                          db: Session = Depends(get_db)):
@@ -49,6 +49,11 @@ def user_password_update(token: str,
     else:
         db_user = user_crud.get_user_by_email(db, email)
         user_crud.update_user_password(db=db, db_user=db_user, user_update=_user_update)
+
+@router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+def user_delete(me_token: str,
+                ):
+    pass
 
 @router.post("/login", response_model=user_schema.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),

@@ -16,7 +16,7 @@
         password1: password1,
         password2: password2
       },
-      () => {console.log('changed')},
+      () => {push('/')},
       (err) => {error = err})
       console.log(token)
     }
