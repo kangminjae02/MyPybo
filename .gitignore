@@ -5,3 +5,6 @@ __pycache__
 migrations
 alembic.ini
 db_control.py
+*.cfg
+.env
+env.py
